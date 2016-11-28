@@ -48,4 +48,7 @@ nonatomic是非线程安全的，不会给setter方法加锁，atomic是线程�
 
 **synchronized:**是为方法加锁，或是块加锁，不管处于哪个线程中，运行到该方法的时候，都会检查有没有其它线程在使用该方法。如果有则等待这个线程执行完再执行当前线程。这种机制确保了同一时刻对于每一个类，至多只有一个处于可执行状态，从而有效避免了类成员变量的访问冲突。
 
+##synthesize、dynamic
+synthesize：编译器会在你没有手动编写getter、setter的时候自动生成getter,setter方法。
+dynamic：告诉编译器，你会在运行时动态生成getter、setter方法。
 
