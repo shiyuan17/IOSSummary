@@ -1,3 +1,0 @@
-# ios1
-
-asdfdfafdaafaf
