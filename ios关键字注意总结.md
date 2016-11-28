@@ -1,4 +1,4 @@
-# ios keywords关键字注意说明：
+# ios keywords关键字注意说明
 ##strong、weak、assign、retain
 1.**strong和weak**是在arc后引入的关键字，strong类似于retain,引用时候会产生引用计数+1，weak则不会改变引用计数。
 
