@@ -6,6 +6,11 @@
 
 3.**assign和weak**大体一致，但是assign的变量在释放后并不设置为nil，指针的地址还是存在的，所以不能用assign修饰对象类型，如果用assign修饰对象类型当你释放后再去引用的时候就会发生错误崩溃，导致EXC_BAD_ACCESS.
 
+##strong、copy、mutablecopy
+strong和copy,mutablecopy都是引用计算加1，strong和copy的区别是：copy会进行一份拷贝，对copy修饰的属性是新的一份副本，属性修饰的时候为什么要经常使用copy呢，有这样一种情况：在拥有父类的情况下，父类指针可以指向子类对象,使用 copy 的目的是为了让本对象的属性不受外界影响,使用 copy 无论给我传入是一个可变对象还是不可对象,我本身持有的就是一个不可变的副本.
+
+集合类对象中，对immutable(不可变)对象进行 copy，是指针复制， mutableCopy 是内容复制；对 mutable 对象进行 copy 和 mutableCopy 都是内容复制。但是：集合对象的内容复制仅限于对象本身，对象元素仍然是指针复制。
+
 ##__block、__weak、__unsafe_unretained
 1.Block可以访问局部变量，但是不能修改，如果修改局部变量，需要加__block（**注意：有这样一种情况我们可能很容易忽略，成员变量可以使用下划线_访问，然后我们就鬼使神差的在block里使用下划线去访问成员变量了，这样就造成了循环引用retain cycle**）。
 例如：
