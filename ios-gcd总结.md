@@ -1,26 +1,12 @@
-\# GCD
+# GCD
 
-\#\#目录结构：
+## 目录结构：
 
-\*   \[线程概念\]\(\#threadConcept\)
-
-\*   \[线程常用操作\]\(\#threadCommonOpt\)
-
-    \*   \[常用耗时GCD操作\]\(\#async\_gcd\)
-
-    \*   \[dispatch\_once\]\(\#dispatch\_once\)    
-
-    \*   \[任务队列\]\(\#taskqueue\)
-
-    \*   \[自定义队列\]\(\#customerqueue\)
-
-\*   \[多线程中的常见问题\]\(\#threadquestion\)
+* [线程概念](/threadConcept)
 
 
 
-
-
-\#\#\#&lt;a name="threadConcept"&gt;&lt;/a&gt;1.线程概念
+\#\#\#1.线程概念
 
 \*\*同步：\*\*阻塞当前线程，走到任务执行完毕后。
 
@@ -30,21 +16,17 @@
 
 \*\*并行队列：\*\*放到并行队列的任务，GCD 也会 FIFO的取出来，但不同的是，它取出来一个就会放到别的线程，然后再取出来一个又放到另一个的线程。这样由于取的动作很快，忽略不计，看起来，所有的任务都是一起执行的。不过需要注意，GCD 会根据系统资源控制并行的数量，所以如果任务很多，它并不会让所有任务同时执行。
 
-
-
 \*\*gcd三种队列类型：Serial\(串行\)，Concurrent\(并行\)，Main dispatch queue\(主线程串行\)\*\*
 
-    1.主线程串行队列，通过\*\*dispatch\_get\_main\_queue\(\)\*\*来获取，UI操作相关必须要在主线程队列运行，减少避免耗时操作在主线程运行。
+```
+1.主线程串行队列，通过\*\*dispatch\_get\_main\_queue\(\)\*\*来获取，UI操作相关必须要在主线程队列运行，减少避免耗时操作在主线程运行。
 
-    2.全局并发队列，通过\*\*dispatch\_get\_global\_queue\*\*来获取，可以设置优先级，系统提供的并发队列，一般并行任务都可以添加到这里。
+2.全局并发队列，通过\*\*dispatch\_get\_global\_queue\*\*来获取，可以设置优先级，系统提供的并发队列，一般并行任务都可以添加到这里。
 
-    3.自定义队列，通过\*\*dispatch\_queue\_create\*\*来获取，可以为串行、并行。并行queue:\*\*DISPATCH\_QUEUE\_CONCURRENT\*\*,串行queue:\*\*DISPATCH\_QUEUE\_SERIAL\*\*。
+3.自定义队列，通过\*\*dispatch\_queue\_create\*\*来获取，可以为串行、并行。并行queue:\*\*DISPATCH\_QUEUE\_CONCURRENT\*\*,串行queue:\*\*DISPATCH\_QUEUE\_SERIAL\*\*。
 
-    4.队列组，通过\*\*dispatch\_group\_create\*\*来获取，将多线程进行分组，获取线程队列的完成情况，通过\*\*dispatch\_group\_notify\*\*来监听队列组所有线程的完成情况。
-
-
-
-
+4.队列组，通过\*\*dispatch\_group\_create\*\*来获取，将多线程进行分组，获取线程队列的完成情况，通过\*\*dispatch\_group\_notify\*\*来监听队列组所有线程的完成情况。
+```
 
 &lt;table&gt;
 
@@ -88,147 +70,135 @@
 
 &lt;/table&gt;
 
-
-
-  
-
 \#\#\#&lt;a name="threadCommonOpt"&gt;&lt;/a&gt;2.线程常用操作
-
-
 
 \*\*1.常用耗时GCD操作\*\*&lt;a name="async\_gcd"&gt;&lt;/a&gt;
 
-    dispatch\_async\(dispatch\_get\_global\_queue\(DISPATCH\_QUEUE\_PRIORITY\_DEFAULT, 0\), ^{  
+```
+dispatch\_async\(dispatch\_get\_global\_queue\(DISPATCH\_QUEUE\_PRIORITY\_DEFAULT, 0\), ^{  
 
-            // 耗时的操作  
+        // 耗时的操作  
 
-            dispatch\_async\(dispatch\_get\_main\_queue\(\), ^{  
+        dispatch\_async\(dispatch\_get\_main\_queue\(\), ^{  
 
-                // 更新界面  
-
-            }\);  
+            // 更新界面  
 
         }\);  
 
-
-
-
+    }\);  
+```
 
 \*\*2.dispatch\_once 常用来设置单例，保证在程序运行中只执行一次。\*\*&lt;a name="dispatch\_once"&gt;&lt;/a&gt;
 
+* \(Instance \*\)sharedInstance
 
+  {
 
-    + \(Instance \*\)sharedInstance  
+  ```
+    static AccountManager \*instance = nil;  
 
-    {  
+    static dispatch\_once\_t predicate;  
 
-            static AccountManager \*instance = nil;  
+    dispatch\_once\(&predicate, ^{  
 
-            static dispatch\_once\_t predicate;  
+            //只初始化一次
 
-            dispatch\_once\(&predicate, ^{  
+            instance  = \[\[self alloc\] init\];   
 
-                    //只初始化一次
+    }\);  
+  ```
 
-                    instance  = \[\[self alloc\] init\];   
+  return instance;
 
-            }\);  
-
-        return instance;  
-
-    } 
-
-
+  }
 
 \*\*&lt;a name="taskqueue"&gt;&lt;/a&gt;3.一组任务的执行情况可以使用dispatch\_group\_async进行监听，所有任务完成后，使用dispatch\_group\_notify进行监听完成。\*\*
 
+```
+    //获取全局并行队列
+
+    dispatch\_queue\_t queue = dispatch\_get\_global\_queue\(DISPATCH\_QUEUE\_PRIORITY\_DEFAULT, 0\);
+
+    //创建队列组
+
+    dispatch\_group\_t group = dispatch\_group\_create\(\);
+
+    //设置异步线程所属的分组和所属的队列
+
+    dispatch\_group\_async\(group, queue, ^{
+
+        NSLog\(@"task1"\);
+
+    }\);
+
+    dispatch\_group\_async\(group, queue, ^{
+
+        NSLog\(@"task2"\);
+
+    }\);
+
+    dispatch\_group\_async\(group, queue, ^{
+
+        NSLog\(@"task3"\);
+
+    }\);
+
+    //监听group组中的队列完成情况
+
+    dispatch\_group\_notify\(group, queue, ^{
+
+        NSLog\(@"task success"\);
+
+    }\);
 
 
-        //获取全局并行队列
 
-        dispatch\_queue\_t queue = dispatch\_get\_global\_queue\(DISPATCH\_QUEUE\_PRIORITY\_DEFAULT, 0\);
+    //输出结果：
 
-        //创建队列组
+    task3
 
-        dispatch\_group\_t group = dispatch\_group\_create\(\);
+    task1
 
-        //设置异步线程所属的分组和所属的队列
+    task2
 
-        dispatch\_group\_async\(group, queue, ^{
-
-            NSLog\(@"task1"\);
-
-        }\);
-
-        dispatch\_group\_async\(group, queue, ^{
-
-            NSLog\(@"task2"\);
-
-        }\);
-
-        dispatch\_group\_async\(group, queue, ^{
-
-            NSLog\(@"task3"\);
-
-        }\);
-
-        //监听group组中的队列完成情况
-
-        dispatch\_group\_notify\(group, queue, ^{
-
-            NSLog\(@"task success"\);
-
-        }\);
-
-        
-
-        //输出结果：
-
-        task3
-
-        task1
-
-        task2
-
-        task success
+    task success
+```
 
 \*\*&lt;a name="customerqueue"&gt;&lt;/a&gt;4.创建自定义的队列dispatch\_queue\_create\(,\)两个参数，第一个为队列标识，第二个为队列的类型\(串行、并行\)，当为NULL的时候表示串行队列\*\*
 
+```
+//创建自定义并行队列，标识为demo.queue
 
+    dispatch\_queue\_t queue = dispatch\_queue\_create\("demo.queue", DISPATCH\_QUEUE\_CONCURRENT\);
 
-    //创建自定义并行队列，标识为demo.queue
+    dispatch\_async\(queue, ^{
 
-        dispatch\_queue\_t queue = dispatch\_queue\_create\("demo.queue", DISPATCH\_QUEUE\_CONCURRENT\);
+        NSLog\(@"task1"\);
 
-        dispatch\_async\(queue, ^{
+    }\);
 
-            NSLog\(@"task1"\);
+    dispatch\_async\(queue, ^{
 
-        }\);
+        NSLog\(@"task2"\);
 
-        dispatch\_async\(queue, ^{
+    }\);
 
-            NSLog\(@"task2"\);
+    //等待队列前所有任务线程完成后才执行，并且dispatch\_barrier\_async后面的任务要等待当前dispatch\_barrier\_async执行完成后才执行。
 
-        }\);
+    dispatch\_barrier\_async\(queue, ^{
 
-        //等待队列前所有任务线程完成后才执行，并且dispatch\_barrier\_async后面的任务要等待当前dispatch\_barrier\_async执行完成后才执行。
+        NSLog\(@"dispatch\_barrier\_async"\);
 
-        dispatch\_barrier\_async\(queue, ^{
+    }\);
 
-            NSLog\(@"dispatch\_barrier\_async"\);
+    //end task要等待dispatch\_barrier\_async完成后才会运行。
 
-        }\);
+    dispatch\_async\(queue, ^{
 
-        //end task要等待dispatch\_barrier\_async完成后才会运行。
+        NSLog\(@"end task"\);
 
-        dispatch\_async\(queue, ^{
-
-            NSLog\(@"end task"\);
-
-        }\);
-
-
+    }\);
+```
 
 \#\#3.多线程中的常见问题&lt;a name="threadquestion"&gt;&lt;/a&gt;
 
@@ -243,8 +213,4 @@
 \*\*5.优先级反转\*\*修改线程优先级要多注意低优先级的线程影响到高优级线程的运行。当不同优先级的许多线程共享对同样的锁和资源的访问权时，可能会发生优先级反转，即较低优先级的线程实际无限期地阻止较高优先级线程的进度。
 
 \*\*互斥锁\*\*ios中有atomic作为原子属性，他会为setter方法进行加锁，哪么该属性变量就支持互斥锁了。atomic作为解决多线程资源抢夺中会消耗大量的资源，并且一个线程在连续多次读取某个属性值的过程中有别的线程在同时改写该值，那么即便将属性声明为atomic，也还是会读取到不同的属性值。若要实现线程安全操作还需要采用更为深层的锁机制处理才行。
-
-
-
-
 
