@@ -24,7 +24,7 @@
 
 3.自定义队列，通过**dispatch\_queue\_create**来获取，可以为串行、并行。并行queue:**DISPATCH\_QUEUE\_CONCURRENT**,串行queue:**DISPATCH\_QUEUE\_SERIAL**。
 
- 4.队列组，通过**dispatch\_group\_create**来获取，将多线程进行分组，获取线程队列的完成情况，通过**dispatch\_group\_notify**来监听队列组所有线程的完成情况。
+4.队列组，通过**dispatch\_group\_create**来获取，将多线程进行分组，获取线程队列的完成情况，通过**dispatch\_group\_notify**来监听队列组所有线程的完成情况。
 
 |  | 同步执行 | 异步执行 |
 | :--- | :--- | :--- |
@@ -33,7 +33,7 @@
 
 ### [2.线程常用操作](/threadCommonOpt)
 
-\*\*1.常用耗时GCD操作\*\*&lt;a name="async\_gcd"&gt;&lt;/a&gt;
+**1.常用耗时GCD操作**
 
 ```
 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{  
@@ -41,10 +41,10 @@ dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             dispatch_async(dispatch_get_main_queue(), ^{  
                 // 更新界面  
             });  
-        });  
+        });
 ```
 
-**2.dispatch\_once 常用来设置单例，保证在程序运行中只执行一次。** &lt;a name="dispatch\_once"&gt;&lt;/a&gt;
+**2.dispatch\_once 常用来设置单例，保证在程序运行中只执行一次。**
 
 ```
 + (Instance *)sharedInstance  
@@ -56,13 +56,13 @@ dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                     instance  = [[self alloc] init];   
             });  
         return instance;  
-    } 
+    }
 ```
 
-* **&lt;a name="taskqueue"&gt;&lt;/a&gt;3.一组任务的执行情况可以使用dispatch\_group\_async进行监听，所有任务完成后，使用dispatch\_group\_notify进行监听完成。**
+**3.一组任务的执行情况可以使用dispatch\_group\_async进行监听，所有任务完成后，使用dispatch\_group\_notify进行监听完成。**
 
 ```
-        //获取全局并行队列
+//获取全局并行队列
         dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         //创建队列组
         dispatch_group_t group = dispatch_group_create();
@@ -80,7 +80,7 @@ dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         dispatch_group_notify(group, queue, ^{
             NSLog(@"task success");
         });
-        
+
         //输出结果：
         task3
         task1
@@ -88,10 +88,10 @@ dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         task success
 ```
 
-**&lt;a name="customerqueue"&gt;&lt;/a&gt;4.创建自定义的队列dispatch\_queue\_create\(,\)两个参数，第一个为队列标识，第二个为队列的类型\(串行、并行\)，当为NULL的时候表示串行队列**
+**4.创建自定义的队列dispatch\_queue\_create\(,\)两个参数，第一个为队列标识，第二个为队列的类型\(串行、并行\)，当为NULL的时候表示串行队列**
 
 ```
-        //创建自定义并行队列，标识为demo.queue
+//创建自定义并行队列，标识为demo.queue
         dispatch_queue_t queue = dispatch_queue_create("demo.queue", DISPATCH_QUEUE_CONCURRENT);
         dispatch_async(queue, ^{
             NSLog(@"task1");
