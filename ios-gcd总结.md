@@ -3,8 +3,7 @@
 ## 目录结构：
 
 * [线程概念](/threadConcept)
-
-
+* [多线程中的常见问题](#threadquestion)
 
 \#\#\#1.线程概念
 
@@ -85,7 +84,7 @@ dispatch\_async\(dispatch\_get\_global\_queue\(DISPATCH\_QUEUE\_PRIORITY\_DEFAUL
 
         }\);  
 
-    }\);  
+    }\);
 ```
 
 \*\*2.dispatch\_once 常用来设置单例，保证在程序运行中只执行一次。\*\*&lt;a name="dispatch\_once"&gt;&lt;/a&gt;
@@ -95,7 +94,7 @@ dispatch\_async\(dispatch\_get\_global\_queue\(DISPATCH\_QUEUE\_PRIORITY\_DEFAUL
   {
 
   ```
-    static AccountManager \*instance = nil;  
+  static AccountManager \*instance = nil;  
 
     static dispatch\_once\_t predicate;  
 
@@ -105,7 +104,7 @@ dispatch\_async\(dispatch\_get\_global\_queue\(DISPATCH\_QUEUE\_PRIORITY\_DEFAUL
 
             instance  = \[\[self alloc\] init\];   
 
-    }\);  
+    }\);
   ```
 
   return instance;
@@ -115,7 +114,7 @@ dispatch\_async\(dispatch\_get\_global\_queue\(DISPATCH\_QUEUE\_PRIORITY\_DEFAUL
 \*\*&lt;a name="taskqueue"&gt;&lt;/a&gt;3.一组任务的执行情况可以使用dispatch\_group\_async进行监听，所有任务完成后，使用dispatch\_group\_notify进行监听完成。\*\*
 
 ```
-    //获取全局并行队列
+//获取全局并行队列
 
     dispatch\_queue\_t queue = dispatch\_get\_global\_queue\(DISPATCH\_QUEUE\_PRIORITY\_DEFAULT, 0\);
 
