@@ -62,7 +62,7 @@ dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 **3.一组任务的执行情况可以使用dispatch\_group\_async进行监听，所有任务完成后，使用dispatch\_group\_notify进行监听完成。**
 
 ```
-//获取全局并行队列
+        //获取全局并行队列
         dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         //创建队列组
         dispatch_group_t group = dispatch_group_create();
@@ -91,7 +91,7 @@ dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 **4.创建自定义的队列dispatch\_queue\_create\(,\)两个参数，第一个为队列标识，第二个为队列的类型\(串行、并行\)，当为NULL的时候表示串行队列**
 
 ```
-//创建自定义并行队列，标识为demo.queue
+        //创建自定义并行队列，标识为demo.queue
         dispatch_queue_t queue = dispatch_queue_create("demo.queue", DISPATCH_QUEUE_CONCURRENT);
         dispatch_async(queue, ^{
             NSLog(@"task1");
